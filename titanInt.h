@@ -29,17 +29,10 @@ bool operator>(const titanInt&x, const titanInt& y);
 bool operator==(const titanInt&x, const titanInt& y);
 
 //Arithmetic Operators
-titanInt helper(const titanInt& x, const titanInt& y);
 titanInt operator+(const titanInt& x, const titanInt& y);
 titanInt operator-(const titanInt& x, const titanInt& y);
 titanInt operator*(const titanInt& x, const titanInt& y);
 titanInt operator/(const titanInt& x, const titanInt& y);
-
-//Assignment Operators
-/*titanInt operator+=(titanInt& x, const titanInt& y);
-titanInt operator-=(titanInt& x, const titanInt& y);
-titanInt operator*=(titanInt& x, const titanInt& y);
-titanInt operator/=(titanInt& x, const titanInt& y);*/
 
 class titanInt
 {
@@ -53,6 +46,7 @@ public:
 	virtual ~titanInt();
 
 	//Member Functions
+	void addDigit();
 	titanInt getAbs() const;
 	int getDigit(int i) const;
 	int getSize() const;

@@ -44,14 +44,6 @@ titanInt::titanInt(std::string str) //conversion constructor
 	}
 }
 
-/*titanInt::titanInt(const titanInt &original) // copy constructor
-{
-	for(int i = 0; i <= original.getSize(); ++i)
-	{
-		digits[i] = original.digits[i];
-	}
-}*/
-
 //DESTRUCTOR
 titanInt::~titanInt()
 {
@@ -59,6 +51,12 @@ titanInt::~titanInt()
 }
 
 //MEMBER FUNCTIONS
+
+//The function addDigit() provides a public setter for vector::push_back().
+void titanInt::addDigit()
+{
+	this->digits.push_back(0);
+}
 
 //The function getAbs() returns the absolute value of the passed titanInt
 titanInt titanInt::getAbs() const
@@ -93,12 +91,11 @@ void titanInt::setDigit(int i, int val)
 	}
 	else // out of bounds?
 	{
-		std::cout << "setDigit() error: int val out of bounds of 0 to 9";
+		std::cout << "setDigit() error: int val out of bounds of 0 to 9" << '\n';
 	}
 }
 
 //The function setSize() initializes the digits vector to the number of digits passed
-//Use vector::resize() instead?
 void titanInt::setSize(int numDigits)
 {
 	for(int i = 0; i < numDigits; ++i)
@@ -108,7 +105,7 @@ void titanInt::setSize(int numDigits)
 }
 
 //The function toConstChar() returns the titanInt object as a const char*.
-const char* titanInt::toConstChar() const // REMOVE IF UNUSED
+const char* titanInt::toConstChar() const
 {
 	std::stringstream ss;
 	
@@ -173,14 +170,14 @@ void titanInt::trimZeros()
 
 //OVERLOADED OPERATORS
 
-//stream insertion
+//Stream insertion
 std::ostream& operator<<(std::ostream& output, const titanInt& x)
 {
 	output << x.toString();
 	return output;
 }
 
-//less than
+//Less than
 bool operator<(const titanInt&x, const titanInt& y) // x < y ?
 {
 	if(x.getDigit(0) == -1 && y.getDigit(0) == 1) // x is neg and y is pos
@@ -245,7 +242,7 @@ bool operator<(const titanInt&x, const titanInt& y) // x < y ?
 	}	
 }
 
-//greater than
+//Greater than
 bool operator>(const titanInt&x, const titanInt& y) // x > y ?
 {
 	if(x < y)
@@ -262,7 +259,7 @@ bool operator>(const titanInt&x, const titanInt& y) // x > y ?
 	}
 }
 
-//equality
+//Equality
 bool operator==(const titanInt&x, const titanInt& y) // x == y ?
 {
 	if(x < y)
@@ -279,109 +276,59 @@ bool operator==(const titanInt&x, const titanInt& y) // x == y ?
 	}
 }
 
-//addition function for reuse in operator+()
+//The non-member function helper() assists in operator+() calculations.
 titanInt helper(const titanInt& x, const titanInt& y)
 {
+	//x.Abs() > y.Abs(), ensured by operator+
+	
 	titanInt res;
+	res.setSize(x.getSize()-1);
 	int carry = 0;
 	int sum = 0;
-	int max = std::max(x.getSize(), y.getSize());
-	int min = std::min(x.getSize(), y.getSize());	
-	char larger;
-
-	std::cout << "x = " << x << '\n'; //REMOVE AFTER TESTING
-	std::cout << "y = " << y << '\n'; //REMOVE AFTER TESTING
-
-	//std::cout << "max = " << max << '\n'; //REMOVE AFTER TESTING
-	//std::cout << "min = " << min << '\n'; //REMOVE AFTER TESTING
-
-	//std::cout << x.getDigit(max-1)*x.getDigit(0) << '\n'; //REMOVE AFTER TESTING
-	//std::cout << y.getDigit(max-1)*y.getDigit(0) << '\n'; //REMOVE AFTER TESTING
-
-	if(x.getSize() > y.getSize()) //which titanInt has more digits
-	{
-		larger = 'x';
-	}
-	else if(x.getSize() == y.getSize())
-	{
-		larger = '\0';
-	}
-	else
-	{
-		larger = 'y';
-	}
-
-	if((x.getDigit(x.getSize()-1)*x.getDigit(0)) + //will res have more digits than x and y?
-	   (y.getDigit(y.getSize()-1)*y.getDigit(0)) > 9) 
-	{
-		res.setSize(max); // set size of res to 1 digit more than x and y
-	}
-	else
-	{
-		res.setSize(max-1); // set size to same num of digits as max of x and y
-	}
-
-	for(int i = 1; i < max; ++i)
-	{
-		std::cout << x.getDigit(i)*x.getDigit(0) << '\n'; //REMOVE AFTER TESTING
-		std::cout << y.getDigit(i)*y.getDigit(0) << '\n'; //REMOVE AFTER TESTING
-		
-		if(i > min-1) // we are past the smaller numbers digits
-		{	
-			if(larger == 'x')
-			{
-				sum = x.getDigit(i)*x.getDigit(0) + carry; // ignore the nonsense elements of y
-			}
-			else if(larger == 'y')
-			{
-				sum = y.getDigit(i)*y.getDigit(0) + carry; // ignore the nonsense elements of x
-			}
-			if(carry == -1) // prevent error from "overcalculating" the sum
-			{
-				if(i == max-1)
-				{
-					res.setDigit(i, sum);
-				}
-				return res;
-			}
-		}
-		else // standard case
-		{
-			sum = x.getDigit(i)*x.getDigit(0) + y.getDigit(i)*y.getDigit(0) + carry;
-		}
+	int i;
 	
-		if(sum > 9)
+	for(i = 1; i <= x.getSize()-1; ++i)
+	{
+		sum = x.getDigit(i)*x.getDigit(0) + y.getDigit(i)*y.getDigit(0) + carry;
+		
+		if(i > y.getSize()-1)
 		{
-			sum -= 10;
-			carry = 1;
+			sum = x.getDigit(i)*x.getDigit(0) + carry;
 		}
-		else if(sum < 0)
+
+		if(sum < 0)
 		{
 			sum += 10;
 			carry = -1;
+		}
+		else if(sum > 9)
+		{
+			sum -= 10;
+			carry = 1;
 		}
 		else
 		{
 			carry = 0;
 		}
 
-		std::cout << "sum: " << sum << '\n'; //REMOVE AFTER TESTING
-		
 		res.setDigit(i, sum);
 	}
 
 	if(carry == 1)
 	{
-		std::cout << max << '\n'; // REMOVE AFTER TESTING
-		std::cout << res.getSize() << '\n'; // REMOVE AFTER TESTING
-		res.setDigit(max, 1);
-		std::cout << res.getDigit(max) << '\n'; //REMOVE AFTER TESTING
+		res.addDigit();
+		res.setDigit(i, 1);
 	}
-	
-	return res;
-} // end helper() function
+	else if (carry == -1)
+	{
+		res.setDigit(i, res.getDigit(i)-1);
+	}
 
-//addition
+	return res;
+
+}
+
+//Addition
 titanInt operator+(const titanInt& x, const titanInt& y)
 {
 	titanInt tempX = x; // a titanInt to store a transform of x if necessary
@@ -390,72 +337,97 @@ titanInt operator+(const titanInt& x, const titanInt& y)
 
 	if(x.getDigit(0) == 1 && y.getDigit(0) == 1) // pos x, pos y
 	{
-		result = helper(x,y);
-		//std::cout << result << '\n'; // REMOVE AFTER TESTING
-		result.setDigit(0,1); // make result pos
-		result.trimZeros();
-		return result;
-	}
-	else if (x.getDigit(0) == 1 && y.getDigit(0) == -1) // pos x, neg y
-	{
-		if(x.getAbs() > y.getAbs()) // x is more pos than y is neg -> pos result
+		if(x.getAbs() > y.getAbs())
 		{
 			result = helper(x,y);
-			result.setDigit(0,1); // make result pos
 			result.trimZeros();
-			return result;
 		}
-		else if(x.getAbs() == y.getAbs()) // 0 result
-		{
-			result = 0;
-			return result;
-		}
-		else if(x.getAbs() < y.getAbs()) // x is less pos than y is neg -> neg result
-		{
-			tempX.setDigit(0,-1); // make tempX a neg version of x
-			tempY.setDigit(0,1); // make tempY a pos version of y
-			result = helper(tempX,tempY);
-			result.setDigit(0,-1); // make result neg
-			result.trimZeros();
-			return result;
-		}
-	}
-	else if (x.getDigit(0) == -1 && y.getDigit(0) == 1) // neg x, pos y
-	{
-		if(x.getAbs() > y.getAbs()) // x is more neg than y is pos -> neg result
-		{
-			tempX.setDigit(0,1); // make tempX a pos version of x
-			tempY.setDigit(0,-1); // make tempY a neg version of y
-			result = helper(tempX,tempY);
-			result.setDigit(0,-1); // make result neg
-			result.trimZeros();
-			return result;
-		}
-		else if(x.getAbs() == y.getAbs()) // 0 result
-		{
-			result = 0;
-			return result;
-		}
-		else if(x.getAbs() < y.getAbs()) // x is less neg than y is pos -> pos result
+		else if(x.getAbs() == y.getAbs())
 		{
 			result = helper(x,y);
-			result.setDigit(0,1); // make result pos
 			result.trimZeros();
-			return result;
+		}
+		else if(x.getAbs() < y.getAbs())
+		{
+			result = helper(y,x);
+			result.trimZeros();
+		}
+
+		result.setDigit(0,1);
+	}
+	else if(x.getDigit(0) == 1 && y.getDigit(0) == -1) // pos x, neg y
+	{
+		tempX.setDigit(0,-1);
+		tempY.setDigit(0,1);
+		
+		if(x.getAbs() > y.getAbs())
+		{
+			result = helper(x,y);
+			result.setDigit(0,1);
+			result.trimZeros();
+		}
+		else if(x.getAbs() == y.getAbs())
+		{
+			result = 0;
+			result.setDigit(0,1);
+		}
+		else if(x.getAbs() < y.getAbs())
+		{
+			result = helper(tempY,tempX);
+			result.setDigit(0,-1);
+			result.trimZeros();
+		}
+	}
+	else if(x.getDigit(0) == -1 && y.getDigit(0) == 1) // neg x, pos y
+	{
+		tempX.setDigit(0,1);
+		tempY.setDigit(0,-1);
+		
+		if(x.getAbs() > y.getAbs())
+		{
+			result = helper(tempX,tempY);
+			result.setDigit(0,-1);
+			result.trimZeros();
+		}
+		else if(x.getAbs() == y.getAbs())
+		{
+			result = 0;
+			result.setDigit(0,1);
+		}
+		else if(x.getAbs() < y.getAbs())
+		{
+			result = helper(x,y);
+			result.setDigit(0,1);
+			result.trimZeros();
 		}
 	}
 	else if (x.getDigit(0) == -1 && y.getDigit(0) == -1) // neg x, neg y
 	{
-		tempX.setDigit(0, 1); // make tempX a pos version of x
-		tempY.setDigit(0, 1); // make tempY a pos version of y
-		result = helper(tempX,tempY);
-		result.setDigit(0,-1); // make result neg
-		result.trimZeros();
-		return result;
-	}
-} // end operator+()
+		tempX.setDigit(0,1);
+		tempY.setDigit(0,1);
+		
+		if(x.getAbs() > y.getAbs())
+		{
+			result = helper(tempX,tempY);
+			result.trimZeros();
+		}
+		else if(x.getAbs() == y.getAbs())
+		{
+			result = helper(tempX,tempY);
+			result.trimZeros();
+		}
+		else if(x.getAbs() < y.getAbs())
+		{
+			result = helper(tempY,tempX);
+			result.trimZeros();
+		}
 
-//subtraction
+		result.setDigit(0,-1);
+	}
+	return result;
+}
+
+//Subtraction
 titanInt operator-(const titanInt& x, const titanInt& y) // x - y
 {
 	titanInt tempY = y;
@@ -472,7 +444,7 @@ titanInt operator-(const titanInt& x, const titanInt& y) // x - y
 	return x+tempY;
 }
 
-//multiplication
+//Multiplication
 titanInt operator*(const titanInt& x, const titanInt& y)
 {
 	titanInt index = y.getAbs();
@@ -489,48 +461,19 @@ titanInt operator*(const titanInt& x, const titanInt& y)
 	return res;   
 }
 
-//division
+//Division
 titanInt operator/(const titanInt& x, const titanInt& y)
 {
-	titanInt index = y.getAbs();
+	titanInt tempX = x.getAbs();
 	titanInt res = 0;
 
-	for(titanInt index = y.getAbs(); index > 0; index = index - 1)
+	while(tempX - y.getAbs() + 1 > 0)
 	{
-		res = res + x;
-		std::cout << "res = " << res << '\n'; // REMOVE AFTER TESTING
+		res = res + 1;
+		tempX = tempX - y.getAbs();
 	}
 
 	res.setDigit(0, (x.getDigit(0)*y.getDigit(0)));
 
 	return res;  
 }
-
-/*//compound assignment: addition
-titanInt operator+=(const titanInt& y)
-{
-	*this = *this + y;
-	return *this;
-}
-
-//compound assignment: subtraction
-titanInt operator-=(const titanInt& y)
-{
-	*this = *this - y;
-	return *this;
-}
-
-//compound assignment: multiplication
-titanInt operator*=(const titanInt& y)
-{
-	*this = *this * y;
-	return *this;
-}
-
-//compound assignment: division
-titanInt operator/=(const titanInt& y)
-{
-	*this = *this / y;
-	return *this;
-}
-*/

@@ -8,17 +8,14 @@
  *  This program makes use of the class titanInt ("titantic integer") to add,
  *  subtract, multiply, and divide very large integer numbers.
  * 
- *  Input: Large numbers are entered into the main.cc by the user.
+ *  Input: Large numbers are entered into main.cc by the user.
  * 
  *  Output:  Using FLTK, the results of the various arithmetic computations on
  *  titanInts are displayed graphically.
  *
  *  Limitations: The maximum number of digits in a titanInt is limited by the 
- *  range of int.  Integers in elements of vector digits (out of bounds of the
- *  elements used to store digits) accumulate.  They do not affect calculations 
- *  (in most cases) but it is not intended and I was unable to diagnose the 
- *  cause of or resolve the issue.
- * 
+ *  range of int.  Some leading zeros that weren't visible in terminal usage have
+ *  slipped through to the GUI usage.
  */
 
 #include <iostream>
@@ -32,50 +29,20 @@
 
 using namespace std;
 
+titanInt helper(const titanInt& x, const titanInt& y);
+
 int main(int argc, char **argv)
 {
-	string str = "175";
-	int num = 6;
+	string strX = "510941098372987";
+	string strY = "510943751090987";
 
-	titanInt x = titanInt(str);
-	titanInt y = titanInt(num);
-	titanInt z = x*y;
+	titanInt x = titanInt(strX);
+	titanInt y = titanInt(strY);
+	titanInt z = x+y;
 
 	cout << "x = " << x << '\n';
 	cout << "y = " << y << '\n';
-	cout << "x * y = " << z << '\n';
-	
-/*	cout << "size: " << z.getSize() << '\n';
-	cout << z.getDigit(0) << ' ';
-	cout << z.getDigit(1) << ' ';
-	cout << z.getDigit(2) << ' ';
-	cout << z.getDigit(3) << ' ';
-	cout << z.getDigit(4) << ' ';
-	cout << z.getDigit(5) << '\n';*/
-		
-/*	cout << (x<y) << '\n';
-	cout << (x>y) << '\n';
-	cout << (x==y) << '\n';*/
-
-/*	cout << x.getDigit(0) << ' ';
-	cout << x.getDigit(1) << ' ';
-	cout << x.getDigit(2) << ' ';
-	cout << x.getDigit(3) << ' ';
-	cout << x.getDigit(4) << ' ';
-	cout << x.getDigit(5) << ' ';
-	cout << x.getDigit(6) << ' ';
-
-	cout << '\n' << x.getSize() << '\n';
-
-	cout << z.getDigit(0) << ' ';
-	cout << z.getDigit(1) << ' ';
-	cout << z.getDigit(2) << ' ';
-	cout << z.getDigit(3) << ' ';
-	cout << z.getDigit(4) << ' ';
-	cout << z.getDigit(5) << ' ';
-	cout << z.getDigit(6) << ' ';
-
-	cout << '\n' << z.getSize() << '\n';*/
+	cout << "z = " << z << '\n';
 
 	//main window
 	Fl_Window *window = new Fl_Window(1024,768);
@@ -83,23 +50,20 @@ int main(int argc, char **argv)
 	//x field
 	Fl_Text_Buffer *buff1 = new Fl_Text_Buffer();
 	buff1->text(x.toConstChar());
-	Fl_Text_Display *disp1 = new Fl_Text_Display(10,20,1000,150,"titanInt1");
+	Fl_Text_Display *disp1 = new Fl_Text_Display(10,20,1000,150,"x");
 	disp1->buffer(buff1);
 
-	//operator buttons
-	Fl_Light_Button *butt1 = new Fl_Light_Button(190,180,150,40,"plus");
-	Fl_Light_Button *butt2 = new Fl_Light_Button(350,180,150,40,"minus");
-	Fl_Light_Button *butt3 = new Fl_Light_Button(510,180,150,40,"multiplied by");
-	Fl_Light_Button *butt4 = new Fl_Light_Button(670,180,150,40,"divided by");
+	//operator box
+	Fl_Box *box1 = new Fl_Box(FL_UP_BOX,10,180,1000,40,"PLUS");
 
 	//y field
 	Fl_Text_Buffer *buff2 = new Fl_Text_Buffer();
 	buff2->text(y.toConstChar());
-	Fl_Text_Display *disp2 = new Fl_Text_Display(10,245,1000,150,"titanInt2");
+	Fl_Text_Display *disp2 = new Fl_Text_Display(10,245,1000,150,"y");
 	disp2->buffer(buff2);
 
 	//equals box
-	Fl_Box *box1 = new Fl_Box(FL_UP_BOX,10,410,1000,40,"EQUALS");
+	Fl_Box *box2 = new Fl_Box(FL_UP_BOX,10,410,1000,40,"EQUALS");
 
 	//result field
 	Fl_Text_Buffer *buff3 = new Fl_Text_Buffer();
@@ -110,7 +74,5 @@ int main(int argc, char **argv)
 	window->end();
 	window->show(argc, argv);
 	return Fl::run();
-	
-	//return 0;
 }
 
